@@ -1,0 +1,220 @@
+openapi: 3.0.1
+info:
+  title: Aristo Suspense Service
+  version: 1.0.0
+servers:
+- url: /aristo/v1
+paths:
+  /suspend/temp/{accountId}:
+    post:
+      description: |
+        Availability:
+        * Internal: Yes
+        * External: No
+        * Core: Yes
+
+        Overview:
+
+        Create temporary suspence transactions
+        Headers:
+        For internal authentication use:
+            1. X-NYT-LDAP, X-NYT-CLIENT-ID, X-NYT-CLIENT-SECRET (The most preferable way)
+            2. X-NYT-LDAP, X-NYT-AUTHORIZATION
+        For external authentication use:
+            1. COOKIE, X-NYT-SARTRE-TOKEN, CONTENT-TYPE
+      operationId: createTempSuspence
+      parameters:
+      - description: The account id
+        in: path
+        name: accountId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTempSusupenseCommand'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetTempSusupenseResponse'
+          description: ""
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuspenseErrorResponse'
+          description: Request parameters bad
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuspenseErrorResponse'
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuspenseErrorResponse'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuspenseErrorResponse'
+          description: "[Unknown URI mapping] [Error in request] "
+        "412":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuspenseErrorResponse'
+          description: Precondition Failed
+        "499":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuspenseErrorResponse'
+          description: Reauth Required
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuspenseErrorResponse'
+          description: "[Error communicating with external service] [Error communicating\
+            \ to Aristo] [Internal server error] "
+      summary: Create temp suspense txn
+      tags:
+      - suspend
+      x-codegen-request-body-name: body
+      x-content-type: application/json
+      x-accepts: application/json
+components:
+  schemas:
+    ResponseMetaImpl:
+      example:
+        msg: msg
+        code: UNKNOWN
+      properties:
+        msg:
+          type: string
+        code:
+          enum:
+          - UNKNOWN
+          - "200"
+          - "201"
+          - "202"
+          - "203"
+          - "204"
+          - "206"
+          - "222"
+          - "304"
+          - "400"
+          - "401"
+          - "402"
+          type: string
+      type: object
+    CreateTempSuspenseCommanData:
+      example:
+        suspenseStartDate: 2022-01-01
+        donationFlag: donationFlag
+        suspenseReason: suspenseReason
+        suspenseEndDate: 2022-01-01
+      properties:
+        suspenseReason:
+          type: string
+        donationFlag:
+          type: string
+        suspenseStartDate:
+          example: 2022-01-01
+          type: string
+        suspenseEndDate:
+          example: 2022-01-01
+          type: string
+      type: object
+    CreateTempSusupenseCommand:
+      example:
+        data:
+          suspenseStartDate: 2022-01-01
+          donationFlag: donationFlag
+          suspenseReason: suspenseReason
+          suspenseEndDate: 2022-01-01
+        meta:
+          is_cs: false
+          user_agent: user_agent
+      properties:
+        meta:
+          $ref: '#/components/schemas/RequestMetaImpl'
+        data:
+          $ref: '#/components/schemas/CreateTempSuspenseCommanData'
+      type: object
+    SuspenseErrorResponse:
+      properties:
+        meta:
+          $ref: '#/components/schemas/Meta'
+      type: object
+    Meta:
+      properties:
+        msg:
+          type: string
+        code:
+          format: int32
+          type: integer
+      type: object
+    RequestMetaImpl:
+      example:
+        is_cs: false
+        user_agent: user_agent
+      properties:
+        is_cs:
+          default: false
+          type: boolean
+        user_agent:
+          type: string
+      required:
+      - is_cs
+      - user_agent
+      type: object
+    CreateTempSuspenseResponseData:
+      example:
+        accountId: accountId
+        suspenseStartDate: 2022-01-01
+        donationFlag: donationFlag
+        suspenseReason: suspenseReason
+        suspenseEndDate: 2022-01-01
+      properties:
+        accountId:
+          type: string
+        suspenseReason:
+          type: string
+        donationFlag:
+          type: string
+        suspenseStartDate:
+          example: 2022-01-01
+          type: string
+        suspenseEndDate:
+          example: 2022-01-01
+          type: string
+      type: object
+    GetTempSusupenseResponse:
+      example:
+        data:
+          accountId: accountId
+          suspenseStartDate: 2022-01-01
+          donationFlag: donationFlag
+          suspenseReason: suspenseReason
+          suspenseEndDate: 2022-01-01
+        meta:
+          msg: msg
+          code: UNKNOWN
+      properties:
+        meta:
+          $ref: '#/components/schemas/ResponseMetaImpl'
+        data:
+          $ref: '#/components/schemas/CreateTempSuspenseResponseData'
+      type: object
+x-original-swagger-version: "2.0"
+

@@ -1,0 +1,281 @@
+info:
+  title: Aristo Suspense Service
+  version: 1.0.0
+consumes:
+  - application/json
+produces:
+  - application/json
+swagger: '2.0'
+basePath: /aristo/v1
+paths:
+  /productChange{accountId}:
+    post:
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/GetProductChangeResponse'
+        '400':
+          description: Request parameters bad
+          schema:
+            $ref: '#/definitions/PcErrorResponse'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/PcErrorResponse'
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/PcErrorResponse'
+        '500':
+          description: '[Error communicating with external service] [Error communicating to Aristo] [Internal server error] '
+          schema:
+            $ref: '#/definitions/PcErrorResponse'
+      description: |
+
+        Overview:
+
+        Create temporary suspense transactions
+        Headers:
+        For internal authentication use:
+            1. X-NYT-LDAP, X-NYT-CLIENT-ID, X-NYT-CLIENT-SECRET (The most preferable way)
+            2. X-NYT-LDAP, X-NYT-AUTHORIZATION
+        For external authentication use:
+            1. COOKIE, X-NYT-SARTRE-TOKEN, CONTENT-TYPE
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/CreateProductChangeCommand'
+        - description: The account id
+          required: true
+          type: string
+          name: accountId
+          in: path
+      produces:
+        - application/json
+      tags:
+        - suspend
+      summary: Create Product Change txn
+      consumes:
+        - application/json
+      operationId: createProductChange
+
+  /suspend/temp/{accountId}:
+    post:
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/GetTempSuspenseResponse'
+        '400':
+          description: Request parameters bad
+          schema:
+            $ref: '#/definitions/SuspenseErrorResponse'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/SuspenseErrorResponse'
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/SuspenseErrorResponse'
+        '500':
+          description: '[Error communicating with external service] [Error communicating to Aristo] [Internal server error] '
+          schema:
+            $ref: '#/definitions/SuspenseErrorResponse'
+      description: |
+
+        Overview:
+
+        Create temporary suspense transactions
+        Headers:
+        For internal authentication use:
+            1. X-NYT-LDAP, X-NYT-CLIENT-ID, X-NYT-CLIENT-SECRET (The most preferable way)
+            2. X-NYT-LDAP, X-NYT-AUTHORIZATION
+        For external authentication use:
+            1. COOKIE, X-NYT-SARTRE-TOKEN, CONTENT-TYPE
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/CreateTempSuspenseCommand'
+        - description: The account id
+          required: true
+          type: string
+          name: accountId
+          in: path
+      produces:
+        - application/json
+      tags:
+        - suspend
+      summary: Create temp suspense txn
+      consumes:
+        - application/json
+      operationId: createTempSuspense
+
+definitions:
+  ResponseMetaImpl:
+    type: object
+    properties:
+      msg:
+        type: string
+      code:
+        enum:
+          - UNKNOWN
+          - '200'
+          - '201'
+          - '202'
+          - '203'
+          - '204'
+          - '206'
+          - '222'
+          - '304'
+          - '400'
+          - '401'
+          - '402'
+  CreateTempSuspenseCommandData:
+    type: object
+    properties:
+      suspenseReason:
+        type: string
+      donationFlag:
+        type: boolean
+      suspenseStartDate:
+        type: string
+        example: '2022-01-01'
+      suspenseEndDate:
+        type: string
+        example: '2022-01-01'
+      operatorId:
+        type: string
+  CreateProductChangeCommandData:
+    type: object
+    properties:
+      productCode:
+        type: string
+      promoCode:
+        type: string
+      billFrequency:
+        type: string
+      numberOfCopies:
+        type: string
+      mediaCode:
+        type: string
+      productChangeStartDate:
+        type: string
+        example: '2022-01-01'
+      operatorId:
+        type: string
+  CreateProductChangeCommand:
+    type: object
+    properties:
+      meta:
+        $ref: '#/definitions/RequestMetaImpl'
+      data:
+        $ref: '#/definitions/CreateProductChangeCommandData'
+  CreateTempSuspenseCommand:
+    type: object
+    properties:
+      meta:
+        $ref: '#/definitions/RequestMetaImpl'
+      data:
+        $ref: '#/definitions/CreateTempSuspenseCommandData'
+
+  PcErrorResponse:
+    type: object
+    properties:
+      meta:
+        $ref: '#/definitions/Meta'
+  SuspenseErrorResponse:
+    type: object
+    properties:
+      meta:
+        $ref: '#/definitions/Meta'
+  Meta:
+    type: object
+    properties:
+      msg:
+        type: string
+      code:
+        type: integer
+        format: int32
+  RequestMetaImpl:
+    required:
+      - is_cs
+      - user_agent
+    type: object
+    properties:
+      is_cs:
+        default: false
+        type: boolean
+      user_agent:
+        type: string
+  CreateProductChangeResponseData:
+    type: object
+    properties:
+      accountId:
+        type: string
+      oldProduct:
+        type: string
+      newProduct:
+        type: string
+      productStartDate:
+        type: string
+        example: '2022-01-01'
+      promoCode:
+        type: string
+      billingFrequency:
+        type: string
+      numberOfCopies:
+        type: string
+      serialNumber:
+        type: string
+      dailySundayRates:
+        type: array
+        items:
+          $ref: '#/definitions/DailySunday'
+  CreateTempSuspenseResponseData:
+    type: object
+    properties:
+      accountId:
+        type: string
+      suspenseReason:
+        type: string
+      donationFlag:
+        type: boolean
+      suspenseStartDate:
+        type: string
+        example: '2022-01-01'
+      suspenseEndDate:
+        type: string
+        example: '2022-01-01'
+      serialNumber:
+        type: string
+  GetProductChangeResponse:
+    type: object
+    properties:
+      meta:
+        $ref: '#/definitions/ResponseMetaImpl'
+      data:
+        $ref: '#/definitions/CreateProductChangeResponseData'
+  GetTempSuspenseResponse:
+    type: object
+    properties:
+      meta:
+        $ref: '#/definitions/ResponseMetaImpl'
+      data:
+        $ref: '#/definitions/CreateTempSuspenseResponseData'
+  DailySunday:
+    type: object
+    properties:
+      dailyRate:
+        type: string
+      sundayRate:
+        type: string
+      cycleCost:
+        type: string
+      promoDuration:
+        type: string
